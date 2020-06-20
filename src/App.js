@@ -1,26 +1,50 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import {connect} from 'react-redux'
+import {sendMessage} from './chat'
+import './App.css'
+class App extends React.Component {
+   messageEnd =React.createRef()
+  messanger(e){
+     this.props.sendMessage(e.target.value)
+     e.target.value=""
+ }
+ componentDidUpdate () {
+  this.scrollToBottom()
+}
+scrollToBottom = () => {
+  this.messageEnd.current.scrollIntoView({ behavior: 'smooth' })
+}
+  render(){
+    const {feed}=this.props
+    return(
+      <div className="chat-main">
+        <div>
+          <h3>CHATBOT</h3>
+        </div>
+    <div className="chat-text">{
+      feed.map((entry)=>{
+       return(
+         <ul>
+           <li style={entry.sender==='user'?{'textAlign':'right'}:{'textAlign':'left'}} on>
+             {entry.text}
+             <div ref={this.messageEnd}></div>
+             </li>
+         </ul>
+       )
+      })
+      }</div>
+        <div>
+        <input type="text" onKeyDown={(e)=>e.keyCode===13?this.messanger(e):null} placeholder="Type message....."/>
+        </div>
+      </div>
+    )
+  }
+  
 }
 
-export default App;
+const mapStateToProps = (state)=>({
+  feed:state
+  
+})
+
+export default connect(mapStateToProps,{sendMessage})(App);
